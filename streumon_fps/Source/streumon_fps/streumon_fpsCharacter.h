@@ -6,6 +6,14 @@
 #include "GameFramework/Character.h"
 #include "streumon_fpsCharacter.generated.h"
 
+UENUM()
+enum EWallrunType
+{
+	None	UMETA( DisplayName = "None" ),
+	Left	UMETA( DisplayName = "LeftWallrun" ),
+	Right	UMETA( DisplayName = "RightWallrun" ),
+};
+
 UCLASS(config=Game)
 class Astreumon_fpsCharacter : public ACharacter
 {
@@ -30,7 +38,6 @@ public:
 	float BaseLookUpRate;
 
 protected:
-
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
 
@@ -57,6 +64,16 @@ protected:
 
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+
+	/**
+	 * Called when the character is wall running
+	 * @Param wallrunSide  indicate the wall relative position to the player.
+	 * @Param wallNormalYaw  Used to get the Z orientation of the wall to determine where the player should wall run
+	 */
+	void Wallrun( EWallrunType wallrunSide, float wallNormalYaw );
+
+public:
+	virtual void Tick( float DeltaSeconds ) override;
 
 protected:
 	// APawn interface

@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "DrawDebugHelpers.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Astreumon_fpsCharacter
@@ -96,6 +97,70 @@ void Astreumon_fpsCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector
 void Astreumon_fpsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 		StopJumping();
+}
+
+void Astreumon_fpsCharacter::Wallrun( EWallrunType wallrunSide, float wallNormalYaw )
+{
+	// Wallrun speed
+	float speed = 500.0f;
+
+	// Direction to run
+	wallNormalYaw += 90.0f;
+
+	if ( wallrunSide == EWallrunType::Left )
+	{
+		wallNormalYaw += 180.0f;
+	}
+
+	// Set character rotation to follow wall
+	FRotator wallRunDirection(GetActorRotation());
+	wallRunDirection.Yaw = wallNormalYaw;
+	SetActorRotation( wallRunDirection );
+
+	// Set wallrun speed
+	GetRootComponent()->ComponentVelocity = FVector( GetActorForwardVector().X * speed, GetActorForwardVector().Y * speed, GetRootComponent()->ComponentVelocity.Z );
+	GetCharacterMovement()->Velocity = FVector( GetActorForwardVector().X * speed, GetActorForwardVector().Y * speed, GetCharacterMovement()->Velocity.Z );
+	
+	// Fuck the gravity
+	GetCharacterMovement()->GravityScale = 0;
+
+	//GetCharacterMovement()->ConstrainNormalToPlane( FVector( 0.0f, 0.0f, 1.0f ) );
+	GetCharacterMovement()->SetPlaneConstraintNormal( FVector( 0.0f, 0.0f, 1.0f ) );
+}
+
+void Astreumon_fpsCharacter::Tick( float DeltaSeconds )
+{
+	float detectionRange = 50.0f;
+	// Character in air ?
+	if ( GetCharacterMovement()->IsFalling() )
+	{
+		FCollisionQueryParams traceParam;
+		traceParam.bDebugQuery = true;
+		FHitResult hitResultRight;
+		FHitResult hitResultLeft;
+		FVector startTrace = GetActorLocation();
+		FVector endTraceRight = GetActorLocation() + ( GetActorRightVector() * detectionRange );
+		FVector endTraceLeft = GetActorLocation() - ( GetActorRightVector() * detectionRange );
+
+		//bool hitOnRight = ActorLineTraceSingle( hitResultRight, startTrace, endTrace, ECollisionChannel::ECC_Visibility, traceParam );
+		//bool hitOnLeft = ActorLineTraceSingle( hitResultLeft, GetActorLocation(), GetActorLocation() + ( GetActorRightVector() * (-detectionRange) ), ECollisionChannel::ECC_Visibility, traceParam );
+		
+		bool hitOnRight = GetWorld()->LineTraceSingleByChannel( hitResultRight, startTrace, endTraceRight, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
+		bool hitOnLeft = GetWorld()->LineTraceSingleByChannel( hitResultLeft, startTrace, endTraceLeft, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
+		DrawDebugLine(GetWorld(), startTrace, endTraceRight, FColor::Red, false, 5.0f, 0, 2.0f);
+		DrawDebugLine(GetWorld(), startTrace, endTraceLeft, FColor::Red, false, 5.0f, 0, 2.0f);
+		
+		if ( hitOnRight )
+		{
+			float normalYaw = hitResultRight.Normal.Rotation().Yaw;
+			Wallrun( EWallrunType::Right, normalYaw );
+		}
+		else if ( hitOnLeft )
+		{
+			float normalYaw = hitResultLeft.Normal.Rotation().Yaw;
+			Wallrun( EWallrunType::Left, normalYaw );
+		}
+	}
 }
 
 void Astreumon_fpsCharacter::TurnAtRate(float Rate)
