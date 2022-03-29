@@ -29,11 +29,14 @@ class Astreumon_fpsCharacter : public ACharacter
 
 	/** Is character currently wallruning ? */
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Wallrun, meta = ( AllowPrivateAccess = "true" ) )
-	TEnumAsByte<EWallrunType> ewallRuning = EWallrunType::None;
+	TEnumAsByte<EWallrunType> eWallruning = EWallrunType::None;
 
 	/** Is character currently wallruning ? */
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Wallrun, meta = ( AllowPrivateAccess = "true" ) )
 	TEnumAsByte<EWallrunType> eIgnoredWallrunSide = EWallrunType::None;
+
+	/** Handle the timer of the ignore wallrun time stamp */
+	FTimerHandle ignoreWallTimerHandler;
 public:
 	Astreumon_fpsCharacter();
 
@@ -90,6 +93,11 @@ protected:
 	 * Called when the character is leaving the wallrun cycle, could be forced or just exiting the current wall.
 	 */
 	void FallOffWall();
+
+	/**
+	 * Called when the character is jumping off a wall
+	 */
+	void JumpOffWall();
 
 	void IgnoreWallrunSide( EWallrunType wallSide, float timeToIgnore );
 
