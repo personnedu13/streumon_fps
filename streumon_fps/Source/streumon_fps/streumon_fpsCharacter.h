@@ -26,6 +26,14 @@ class Astreumon_fpsCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	/** Is character currently wallruning ? */
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Wallrun, meta = ( AllowPrivateAccess = "true" ) )
+	TEnumAsByte<EWallrunType> ewallRuning = EWallrunType::None;
+
+	/** Is character currently wallruning ? */
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Wallrun, meta = ( AllowPrivateAccess = "true" ) )
+	TEnumAsByte<EWallrunType> eIgnoredWallrunSide = EWallrunType::None;
 public:
 	Astreumon_fpsCharacter();
 
@@ -66,14 +74,38 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 	/**
-	 * Called when the character is wall running
+	 * Called when the character is in the air to seek for wallrun.
+	 * Can be called on ground on specific case if needed.
+	 */
+	void TryStartWallrun();
+
+	/**
+	 * Called when the character is already wall running
 	 * @Param wallrunSide  indicate the wall relative position to the player.
 	 * @Param wallNormalYaw  Used to get the Z orientation of the wall to determine where the player should wall run
 	 */
-	void Wallrun( EWallrunType wallrunSide, float wallNormalYaw );
+	void Wallrun();
+
+	/**
+	 * Called when the character is leaving the wallrun cycle, could be forced or just exiting the current wall.
+	 */
+	void FallOffWall();
+
+	void IgnoreWallrunSide( EWallrunType wallSide, float timeToIgnore );
+
+	void StopIgnoreWallrunSide();
 
 public:
 	virtual void Tick( float DeltaSeconds ) override;
+
+	bool IsWallRuning() const;
+
+	EWallrunType GatWallRuning() const;
+
+	/**
+	 * Handle wallrun jump before deciding or not to apply normal jump mechanic
+	 */
+	virtual void Jump() override;
 
 protected:
 	// APawn interface
