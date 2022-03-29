@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Astreumon_fpsCharacter
@@ -90,12 +92,191 @@ void Astreumon_fpsCharacter::OnResetVR()
 
 void Astreumon_fpsCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		Jump();
+	Jump();
 }
 
 void Astreumon_fpsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		StopJumping();
+	StopJumping();
+}
+
+void Astreumon_fpsCharacter::TryStartWallrun()
+{
+	FCollisionQueryParams traceParam;
+	traceParam.bDebugQuery = true;
+	FHitResult hitResultRight;
+	FHitResult hitResultLeft;
+	FVector startTrace = GetActorLocation();
+
+	// Right
+
+	// Wall detection
+	FVector endTraceRight = GetActorLocation() + ( GetActorRightVector() * detectionRange );
+	bool hitOnRight = GetWorld()->LineTraceSingleByChannel( hitResultRight, startTrace, endTraceRight, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
+	DrawDebugLine( GetWorld(), startTrace, endTraceRight, FColor::Red, false, 5.0f, 0, 2.0f );
+	
+	bool canSnapToNewWall = eIgnoredWallrunSide != EWallrunType::Right
+						|| (eIgnoredWallrunSide == EWallrunType::Right
+							&& UKismetMathLibrary::DegAcos( FVector::DotProduct( wallrunNormalToIgnore, hitResultRight.Normal ) ) >= minWallrunAngle);
+	
+	// Wall usable ?
+	if ( hitOnRight && canSnapToNewWall )
+	{
+		eWallruning = EWallrunType::Right;
+		StopIgnoreWallrunSide();
+	}
+
+	// Left
+
+	// Wall detection
+	FVector endTraceLeft = GetActorLocation() - ( GetActorRightVector() * detectionRange );
+	bool hitOnLeft = GetWorld()->LineTraceSingleByChannel( hitResultLeft, startTrace, endTraceLeft, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
+	DrawDebugLine( GetWorld(), startTrace, endTraceLeft, FColor::Red, false, 5.0f, 0, 2.0f );
+
+	canSnapToNewWall = eIgnoredWallrunSide != EWallrunType::Left
+		|| ( eIgnoredWallrunSide == EWallrunType::Left
+			&& UKismetMathLibrary::DegAcos( FVector::DotProduct( wallrunNormalToIgnore, hitResultLeft.Normal ) ) >= minWallrunAngle );
+
+	// Wall usable ?
+	if ( hitOnLeft && canSnapToNewWall )
+	{
+		eWallruning = EWallrunType::Left;
+		StopIgnoreWallrunSide();
+	}
+}
+
+void Astreumon_fpsCharacter::Wallrun()
+{
+	FCollisionQueryParams traceParam;
+	traceParam.bDebugQuery = true;
+	FHitResult hitResult;
+	FVector startTrace = GetActorLocation();
+	FVector endTrace;
+
+	if ( eWallruning == EWallrunType::Right )
+	{
+		endTrace = GetActorLocation() + ( GetActorRightVector() * detectionRange );
+	}
+	else
+	{
+		endTrace = GetActorLocation() - ( GetActorRightVector() * detectionRange );
+	}
+	
+	bool hitOnWall = GetWorld()->LineTraceSingleByChannel( hitResult, startTrace, endTrace, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
+	DrawDebugLine( GetWorld(), startTrace, endTrace, FColor::Red, false, 5.0f, 0, 2.0f );
+
+	if ( hitOnWall )
+	{
+		wallrunNormalToIgnore = hitResult.Normal;
+		float wallrunNormalYaw = hitResult.Normal.Rotation().Yaw;
+
+		// Wallrun speed
+		float speed = 500.0f;
+
+		// Direction to run
+		float directionToRun = eWallruning == EWallrunType::Right ? wallrunNormalYaw + 90.0f : wallrunNormalYaw - 90.0f;
+
+		// Set character rotation to follow wall
+		FRotator wallRunDirection( GetActorRotation() );
+		wallRunDirection.Yaw = directionToRun;
+		SetActorRotation( wallRunDirection );
+
+		// Set wallrun speed
+		GetRootComponent()->ComponentVelocity = FVector( GetActorForwardVector().X * wallrunSpeed, GetActorForwardVector().Y * wallrunSpeed, GetRootComponent()->ComponentVelocity.Z );
+		GetCharacterMovement()->Velocity = FVector( GetActorForwardVector().X * wallrunSpeed, GetActorForwardVector().Y * wallrunSpeed, GetCharacterMovement()->Velocity.Z );
+
+		// Fuck the gravity
+		GetCharacterMovement()->GravityScale = 0.0f;
+
+		// Dont go up nor down
+		GetCharacterMovement()->SetPlaneConstraintNormal( FVector( 0.0f, 0.0f, 1.0f ) );
+	}
+	else
+	{
+		FallOffWall();
+	}
+}
+
+void Astreumon_fpsCharacter::FallOffWall()
+{
+	// Update state
+	eWallruning = EWallrunType::None;
+
+	// Make gravity great again
+	GetCharacterMovement()->GravityScale = 1.0f;
+
+	// Allow to move up and down
+	GetCharacterMovement()->SetPlaneConstraintNormal( FVector( 0.0f, 0.0f, 0.0f ) );
+}
+
+void Astreumon_fpsCharacter::JumpOffWall()
+{
+	if ( !IsWallRuning() )
+	{
+		return;
+	}
+
+	// Launch character calculation
+	IgnoreWallrunSide( eWallruning, ignoreWallTime );
+
+	FVector wallrunLaunchVelocity = eWallruning == EWallrunType::Left ? GetActorRightVector() * wallrunLaunchVelocitySide : GetActorRightVector() * ( -wallrunLaunchVelocitySide );
+	wallrunLaunchVelocity.Z = wallrunLaunchVelocityZ;
+
+	// Character is leaving the wall
+	FallOffWall();
+
+	// Launch character
+	LaunchCharacter( wallrunLaunchVelocity, false, true );
+}
+
+void Astreumon_fpsCharacter::IgnoreWallrunSide( EWallrunType wallSide, float timeToIgnore )
+{
+	eIgnoredWallrunSide = wallSide;
+	GetWorldTimerManager().SetTimer( ignoreWallTimerHandler, this, &Astreumon_fpsCharacter::StopIgnoreWallrunSide, ignoreWallTime, false, -1.0f );
+}
+
+void Astreumon_fpsCharacter::StopIgnoreWallrunSide()
+{
+	GetWorldTimerManager().ClearTimer( ignoreWallTimerHandler );
+	eIgnoredWallrunSide = EWallrunType::None;
+}
+
+void Astreumon_fpsCharacter::Tick( float DeltaSeconds )
+{
+	// Character in air ?
+	if ( GetCharacterMovement()->IsFalling() )
+	{
+		if ( eWallruning == None )
+		{
+			TryStartWallrun();
+		}
+	}
+	if ( eWallruning != None )
+	{
+		Wallrun();
+	}
+}
+
+bool Astreumon_fpsCharacter::IsWallRuning() const
+{
+	return eWallruning != EWallrunType::None;
+}
+
+EWallrunType Astreumon_fpsCharacter::GatWallRuning() const
+{
+	return eWallruning;
+}
+
+void Astreumon_fpsCharacter::Jump()
+{
+	if ( !IsWallRuning() )
+	{
+		ACharacter::Jump();
+	}
+	else
+	{
+		JumpOffWall();
+	}
 }
 
 void Astreumon_fpsCharacter::TurnAtRate(float Rate)
