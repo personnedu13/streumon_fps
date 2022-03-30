@@ -101,6 +101,26 @@ void Astreumon_fpsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector
 	StopJumping();
 }
 
+APawn* Astreumon_fpsCharacter::LookForTarget()
+{
+	FHitResult hitResult;
+	FVector startTrace = GetActorLocation();
+	FVector endTrace = GetActorLocation() + ( GetActorForwardVector() * aimAssistRange );
+
+	static FName CollisionQueryName = TEXT( "AimAssistQuery" );
+
+	FCollisionQueryParams collisionQueryParams;
+	collisionQueryParams.AddIgnoredActor( this );
+	FCollisionShape shape = FCollisionShape::MakeCapsule( aimAssistRadius, ( aimAssistRange - aimAssistRadius ) / 2.0f );
+
+	if ( GetWorld()->SweepSingleByChannel( hitResult, startTrace, endTrace, FQuat::Identity, ECollisionChannel::ECC_Visibility, shape, collisionQueryParams ) )
+	{
+		DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 100, FColor::Green, false, 5.0f, 0U, 2.0f );
+	}
+
+	return nullptr;
+}
+
 void Astreumon_fpsCharacter::Jump()
 {
 	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
@@ -115,6 +135,13 @@ void Astreumon_fpsCharacter::Jump()
 			SO_movementComponent->JumpOffWall();
 		}
 	}
+}
+
+void Astreumon_fpsCharacter::Tick( float DeltaSeconds )
+{
+	ACharacter::Tick( DeltaSeconds );
+
+	LookForTarget();
 }
 
 void Astreumon_fpsCharacter::TurnAtRate(float Rate)
