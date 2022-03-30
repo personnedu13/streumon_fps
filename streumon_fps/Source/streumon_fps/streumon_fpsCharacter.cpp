@@ -113,7 +113,7 @@ APawn* Astreumon_fpsCharacter::LookForTarget()
 	collisionQueryParams.AddIgnoredActor( this );
 	FCollisionShape shape = FCollisionShape::MakeCapsule( aimAssistRadius, ( aimAssistRange - aimAssistRadius ) / 2.0f );
 
-	if ( GetWorld()->SweepSingleByChannel( hitResult, startTrace, endTrace, FQuat::Identity, ECollisionChannel::ECC_Visibility, shape, collisionQueryParams ) )
+	if ( GetWorld()->SweepSingleByChannel( hitResult, startTrace, endTrace, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, shape, collisionQueryParams ) )
 	{
 		DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 100, FColor::Green, false, 5.0f, 0U, 2.0f );
 	}
