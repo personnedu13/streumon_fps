@@ -17,8 +17,34 @@ class Astreumon_fpsCharacter : public ACharacter
 	class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = ( AllowPrivateAccess = "true" ) )
 	class UCameraComponent* FollowCamera;
+
+	/** Aim assist radius
+	 *  How far from the target do we need to be to start aiming at it.
+	 */
+	UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Aim assist", meta = ( AllowPrivateAccess = "true" ) )
+	float aimAssistRadius = 100.0f;
+
+	/** Aim assist range.
+	 *  If a target is further than this range, it will not lock on it.
+	 */
+	UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Aim assist", meta = ( AllowPrivateAccess = "true" ) )
+	float aimAssistRange = 10000.0f;
+
+	/** Aim assist yaw adjust.
+	 *  How much of the difference between sight and target center should be adjusted (Vertical).
+	 *  Value between 0 and 1, 0 : no adjust, 1 : insta lock.
+	 */
+	UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Aim assist", meta = ( AllowPrivateAccess = "true" ) )
+	float aimAssistYawAdjust = 0.2f;
+
+	/** Aim assist pitch adjust.
+	 *  How much of the difference between sight and target center should be adjusted (Vertical).
+	 *  Value between 0 and 1, 0 : no adjust, 1 : insta lock.
+	 */
+	UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Aim assist", meta = ( AllowPrivateAccess = "true" ) )
+	float aimAssistPitchAdjust = 0.2f;
 
 public:
 	Astreumon_fpsCharacter( const FObjectInitializer& ObjectInitializer);
@@ -59,11 +85,15 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	APawn* LookForTarget();
+
 public:
 	/**
 	 * Handle wallrun jump before deciding or not to apply normal jump mechanic
 	 */
 	virtual void Jump() override;
+
+	virtual void Tick( float DeltaSeconds ) override;
 
 protected:
 	// APawn interface

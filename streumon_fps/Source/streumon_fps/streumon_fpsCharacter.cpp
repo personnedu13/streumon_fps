@@ -101,6 +101,37 @@ void Astreumon_fpsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector
 	StopJumping();
 }
 
+APawn* Astreumon_fpsCharacter::LookForTarget()
+{
+	FHitResult hitResult;
+	//FVector startTrace = GetActorLocation();
+	//FVector endTrace = GetActorLocation() + ( GetActorForwardVector() * aimAssistRange );
+
+	FVector startTrace = FollowCamera->GetComponentLocation();
+	FVector endTrace = FollowCamera->GetComponentLocation() + ( FollowCamera->GetForwardVector() * aimAssistRange );
+
+	static FName CollisionQueryName = TEXT( "AimAssistQuery" );
+
+	FCollisionQueryParams collisionQueryParams;
+	collisionQueryParams.AddIgnoredActor( this );
+	
+	FCollisionShape shape = FCollisionShape::MakeSphere( aimAssistRadius );
+
+	if ( GetWorld()->SweepSingleByChannel( hitResult, startTrace, endTrace, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, shape, collisionQueryParams ) )
+	{
+		DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 10, FColor::Green, false, 5.0f, 0U, 2.0f );
+		
+		FRotator cameraToTarget = (hitResult.GetActor()->GetActorLocation() - startTrace).Rotation();
+		FRotator cameraToImpactPoint = ( hitResult.ImpactPoint - startTrace ).Rotation();
+
+		// Use controller input to blend with player input.
+		AddControllerPitchInput( ( cameraToImpactPoint.Pitch - cameraToTarget.Pitch ) * aimAssistPitchAdjust );
+		AddControllerYawInput( ( cameraToTarget.Yaw - cameraToImpactPoint.Yaw ) * aimAssistYawAdjust );
+	}
+
+	return nullptr;
+}
+
 void Astreumon_fpsCharacter::Jump()
 {
 	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
@@ -115,6 +146,13 @@ void Astreumon_fpsCharacter::Jump()
 			SO_movementComponent->JumpOffWall();
 		}
 	}
+}
+
+void Astreumon_fpsCharacter::Tick( float DeltaSeconds )
+{
+	ACharacter::Tick( DeltaSeconds );
+
+	LookForTarget();
 }
 
 void Astreumon_fpsCharacter::TurnAtRate(float Rate)
