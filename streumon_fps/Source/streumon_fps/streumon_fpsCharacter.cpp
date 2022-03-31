@@ -119,7 +119,8 @@ APawn* Astreumon_fpsCharacter::LookForTarget()
 
 	if ( GetWorld()->SweepSingleByChannel( hitResult, startTrace, endTrace, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, shape, collisionQueryParams ) )
 	{
-		DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 10, FColor::Green, false, 5.0f, 0U, 2.0f );
+		// Debug purpose
+		//DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 10, FColor::Green, false, 5.0f, 0U, 2.0f );
 		
 		FRotator cameraToTarget = (hitResult.GetActor()->GetActorLocation() - startTrace).Rotation();
 		FRotator cameraToImpactPoint = ( hitResult.ImpactPoint - startTrace ).Rotation();

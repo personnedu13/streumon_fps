@@ -33,7 +33,7 @@ class Astreumon_fpsCharacter : public ACharacter
 	float aimAssistRange = 10000.0f;
 
 	/** Aim assist yaw adjust.
-	 *  How much of the difference between sight and target center should be adjusted (Vertical).
+	 *  How much of the difference between sight and target center should be adjusted (Horizontal).
 	 *  Value between 0 and 1, 0 : no adjust, 1 : insta lock.
 	 */
 	UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Aim assist", meta = ( AllowPrivateAccess = "true" ) )

@@ -14,6 +14,3 @@ class Astreumon_fpsGameMode : public AGameModeBase
 public:
 	Astreumon_fpsGameMode();
 };
-
-
-
