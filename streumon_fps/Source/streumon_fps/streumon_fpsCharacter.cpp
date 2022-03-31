@@ -114,15 +114,19 @@ APawn* Astreumon_fpsCharacter::LookForTarget()
 
 	FCollisionQueryParams collisionQueryParams;
 	collisionQueryParams.AddIgnoredActor( this );
-	//FCollisionShape shape = FCollisionShape::MakeCapsule( aimAssistRadius, ( aimAssistRange - aimAssistRadius ) / 2.0f );
+	
 	FCollisionShape shape = FCollisionShape::MakeSphere( aimAssistRadius );
 
 	if ( GetWorld()->SweepSingleByChannel( hitResult, startTrace, endTrace, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, shape, collisionQueryParams ) )
 	{
 		DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 10, FColor::Green, false, 5.0f, 0U, 2.0f );
 		
-		//FollowCamera->SetWorldRotation( ( hitResult.Location - GetActorLocation() ).Rotation() );
-		//AddControllerPitchInput( 0.1f );
+		FRotator cameraToTarget = (hitResult.GetActor()->GetActorLocation() - startTrace).Rotation();
+		FRotator cameraToImpactPoint = ( hitResult.ImpactPoint - startTrace ).Rotation();
+
+		// Use controller input to blend with player input.
+		AddControllerPitchInput( ( cameraToImpactPoint.Pitch - cameraToTarget.Pitch ) * aimAssistPitchAdjust );
+		AddControllerYawInput( ( cameraToTarget.Yaw - cameraToImpactPoint.Yaw ) * aimAssistYawAdjust );
 	}
 
 	return nullptr;
