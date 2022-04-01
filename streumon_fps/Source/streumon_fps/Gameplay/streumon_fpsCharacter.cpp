@@ -71,6 +71,7 @@ void Astreumon_fpsCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	// Weapon fire
 	PlayerInputComponent->BindAction( "FireWeapon", IE_Pressed, this, &Astreumon_fpsCharacter::OnFire );
 
+	// Mouvement
 	PlayerInputComponent->BindAxis("MoveForward", this, &Astreumon_fpsCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &Astreumon_fpsCharacter::MoveRight);
 
@@ -118,7 +119,7 @@ void Astreumon_fpsCharacter::LookForTarget()
 	//FVector startTrace = GetActorLocation();
 	//FVector endTrace = GetActorLocation() + ( GetActorForwardVector() * aimAssistRange );
 
-	FVector startTrace = FollowCamera->GetComponentLocation();
+	FVector startTrace = FollowCamera->GetComponentLocation() + ( FollowCamera->GetForwardVector() * 500.0f );
 	FVector endTrace = FollowCamera->GetComponentLocation() + ( FollowCamera->GetForwardVector() * aimAssistRange );
 
 	static FName CollisionQueryName = TEXT( "AimAssistQuery" );
@@ -133,12 +134,15 @@ void Astreumon_fpsCharacter::LookForTarget()
 		// Debug purpose
 		//DrawDebugSphere( GetWorld(), hitResult.Location, 10.0f, 10, FColor::Green, false, 5.0f, 0U, 2.0f );
 		
-		FRotator cameraToTarget = (hitResult.GetActor()->GetActorLocation() - startTrace).Rotation();
-		FRotator cameraToImpactPoint = ( hitResult.ImpactPoint - startTrace ).Rotation();
+		FRotator cameraToTarget = (hitResult.GetActor()->GetActorLocation() - FollowCamera->GetComponentLocation() ).Rotation();
+		FRotator cameraToImpactPoint = ( hitResult.ImpactPoint - FollowCamera->GetComponentLocation() ).Rotation();
+		FRotator cameraRotation = FollowCamera->GetForwardVector().Rotation();
 
 		// Use controller input to blend with player input.
-		AddControllerPitchInput( ( cameraToImpactPoint.Pitch - cameraToTarget.Pitch ) * aimAssistPitchAdjust );
-		AddControllerYawInput( ( cameraToTarget.Yaw - cameraToImpactPoint.Yaw ) * aimAssistYawAdjust );
+		//AddControllerPitchInput( ( cameraToImpactPoint.Pitch - cameraToTarget.Pitch ) * aimAssistPitchAdjust );
+		//AddControllerYawInput( ( cameraToTarget.Yaw - cameraToImpactPoint.Yaw ) * aimAssistYawAdjust );
+		AddControllerPitchInput( ( cameraRotation.Pitch - cameraToImpactPoint.Pitch ) * aimAssistPitchAdjust );
+		AddControllerYawInput( ( cameraToImpactPoint.Yaw - cameraRotation.Yaw ) * aimAssistYawAdjust );
 	}
 }
 

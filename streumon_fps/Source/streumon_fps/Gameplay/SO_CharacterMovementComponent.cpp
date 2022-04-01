@@ -29,7 +29,9 @@ void USO_CharacterMovementComponent::TryStartWallrun()
 	// Wall detection
 	FVector endTraceRight = GetActorLocation() + ( GetCharacterOwner()->GetActorRightVector() * detectionRange );
 	bool hitOnRight = GetWorld()->LineTraceSingleByChannel( hitResultRight, startTrace, endTraceRight, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
-	DrawDebugLine( GetWorld(), startTrace, endTraceRight, FColor::Red, false, 5.0f, 0, 2.0f );
+	
+	// Debug purpose
+	//DrawDebugLine( GetWorld(), startTrace, endTraceRight, FColor::Red, false, 5.0f, 0, 2.0f );
 
 	bool canSnapToNewWall = eIgnoredWallrunSide != EWallrunType::Right
 		|| ( eIgnoredWallrunSide == EWallrunType::Right
@@ -49,7 +51,9 @@ void USO_CharacterMovementComponent::TryStartWallrun()
 	// Wall detection
 	FVector endTraceLeft = GetActorLocation() - ( GetCharacterOwner()->GetActorRightVector() * detectionRange );
 	bool hitOnLeft = GetWorld()->LineTraceSingleByChannel( hitResultLeft, startTrace, endTraceLeft, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
-	DrawDebugLine( GetWorld(), startTrace, endTraceLeft, FColor::Red, false, 5.0f, 0, 2.0f );
+	
+	// Debug purpose
+	//DrawDebugLine( GetWorld(), startTrace, endTraceLeft, FColor::Red, false, 5.0f, 0, 2.0f );
 
 	canSnapToNewWall = eIgnoredWallrunSide != EWallrunType::Left
 		|| ( eIgnoredWallrunSide == EWallrunType::Left
@@ -83,7 +87,9 @@ void USO_CharacterMovementComponent::Wallrun()
 	}
 
 	bool hitOnWall = GetWorld()->LineTraceSingleByChannel( hitResult, startTrace, endTrace, ECollisionChannel::ECC_Visibility, traceParam, FCollisionResponseParams::DefaultResponseParam );
-	DrawDebugLine( GetWorld(), startTrace, endTrace, FColor::Red, false, 5.0f, 0, 2.0f );
+	
+	// Debug purpose
+	//DrawDebugLine( GetWorld(), startTrace, endTrace, FColor::Red, false, 5.0f, 0, 2.0f );
 
 	if ( hitOnWall )
 	{

@@ -17,9 +17,7 @@ void Astreumon_fps_HUD::InitHUD()
 			{
 				newEntry->AddToViewport();
 				// Will only work for serverside
-				newEntry->OnPlayerControllerBeginPlay();
 				WidgetList.Add( newEntry );
-				//newEntry->SetupDelegateToObject( this );
 			}
 		}
 	}
@@ -28,12 +26,4 @@ void Astreumon_fps_HUD::InitHUD()
 void Astreumon_fps_HUD::BeginPlay()
 {
 	InitHUD();
-}
-
-void Astreumon_fps_HUD::OnPlayerControllerBeginPlay()
-{
-	for ( Ustreumon_fps_UserWidget* widget : WidgetList )
-	{
-		widget->OnPlayerControllerBeginPlay();
-	}
 }
