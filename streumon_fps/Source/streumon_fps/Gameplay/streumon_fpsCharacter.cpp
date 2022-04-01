@@ -11,6 +11,7 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "SO_PlayerController.h"
+#include "SO_Projectile.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Astreumon_fpsCharacter
@@ -66,6 +67,9 @@ void Astreumon_fpsCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 
 	// Wallrun
 	PlayerInputComponent->BindAction( "Wallrun", IE_Pressed, this, &Astreumon_fpsCharacter::SwitchWallrun );
+
+	// Weapon fire
+	PlayerInputComponent->BindAction( "FireWeapon", IE_Pressed, this, &Astreumon_fpsCharacter::OnFire );
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &Astreumon_fpsCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &Astreumon_fpsCharacter::MoveRight);
@@ -144,6 +148,29 @@ void Astreumon_fpsCharacter::JumpOffWallServer_Implementation()
 {
 	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
 	SO_movementComponent->JumpOffWall();
+}
+
+void Astreumon_fpsCharacter::OnFire()
+{
+	// try and fire a projectile
+	if ( ProjectileClass != nullptr )
+	{
+		UWorld* const World = GetWorld();
+		if ( World != nullptr )
+		{
+			const FRotator SpawnRotation = FollowCamera->GetForwardVector().Rotation();
+			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+			const FVector SpawnLocation = ( ( FP_MuzzleLocation != nullptr ) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation() ) + SpawnRotation.RotateVector( GunOffset );
+
+			//Set Spawn Collision Handling Override
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			ActorSpawnParams.Owner = this;
+
+			// spawn the projectile at the muzzle
+			World->SpawnActor<ASO_Projectile>( ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams );
+		}
+	}
 }
 
 void Astreumon_fpsCharacter::ServerSwitchWallrun_Implementation()

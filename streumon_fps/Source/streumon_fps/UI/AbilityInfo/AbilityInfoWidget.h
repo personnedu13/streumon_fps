@@ -7,22 +7,6 @@
 #include "Components/HorizontalBox.h"
 #include "AbilityInfoWidget.generated.h"
 
-
-
-/*USTRUCT()
-struct STREUMON_FPS_API FAbilityIconAsset
-{
-	GENERATED_USTRUCT_BODY()
-
-	FAbilityIconAsset() = default;
-
-	UPROPERTY( EditAnywhere )
-	USlateBrushAsset* ActiveAbilityIcon;
-
-	UPROPERTY( EditAnywhere )
-	USlateBrushAsset* UnactiveAbilityIcon;
-};*/
-
 /**
  *
  */
