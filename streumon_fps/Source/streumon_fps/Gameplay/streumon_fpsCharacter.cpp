@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SO_PlayerController.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Astreumon_fpsCharacter
@@ -59,6 +60,12 @@ void Astreumon_fpsCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	// Aim assist
+	PlayerInputComponent->BindAction( "AimAssist", IE_Pressed, this, &Astreumon_fpsCharacter::SwitchAimAssist );
+
+	// Wallrun
+	PlayerInputComponent->BindAction( "Wallrun", IE_Pressed, this, &Astreumon_fpsCharacter::SwitchWallrun );
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &Astreumon_fpsCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &Astreumon_fpsCharacter::MoveRight);
@@ -133,19 +140,70 @@ APawn* Astreumon_fpsCharacter::LookForTarget()
 	return nullptr;
 }
 
+void Astreumon_fpsCharacter::JumpOffWallServer_Implementation()
+{
+	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
+	SO_movementComponent->JumpOffWall();
+}
+
+void Astreumon_fpsCharacter::ServerSwitchWallrun_Implementation()
+{
+	wallrunEnable = !wallrunEnable;
+	if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+	{
+		playerController->OnWallrunStateReceived( wallrunEnable );
+	}
+	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
+	if ( IsValid( SO_movementComponent ) && !wallrunEnable )
+	{
+		SO_movementComponent->FallOffWall();
+	}
+}
+
 void Astreumon_fpsCharacter::Jump()
 {
 	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
 	if ( SO_movementComponent != nullptr )
 	{
-		if ( !SO_movementComponent->IsWallRuning() )
+		if ( !IsWallrunEnable() || !SO_movementComponent->IsWallRuning() )
 		{
 			ACharacter::Jump();
 		}
 		else
 		{
-			SO_movementComponent->JumpOffWall();
+			JumpOffWallServer();
+			//SO_movementComponent->JumpOffWall();
 		}
+	}
+}
+
+void Astreumon_fpsCharacter::SwitchWallrun()
+{
+	ServerSwitchWallrun();
+
+	wallrunEnable = !wallrunEnable;
+	if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+	{
+		playerController->OnWallrunStateReceived( wallrunEnable );
+	}
+	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
+	if ( IsValid( SO_movementComponent ) && !wallrunEnable )
+	{
+		SO_movementComponent->FallOffWall();
+	}
+}
+
+bool Astreumon_fpsCharacter::IsWallrunEnable() const
+{
+	return wallrunEnable;
+}
+
+void Astreumon_fpsCharacter::SwitchAimAssist()
+{
+	aimAssistEnable = !aimAssistEnable;
+	if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+	{
+		playerController->OnAimAssistStateReceived( aimAssistEnable );
 	}
 }
 
@@ -153,7 +211,10 @@ void Astreumon_fpsCharacter::Tick( float DeltaSeconds )
 {
 	ACharacter::Tick( DeltaSeconds );
 
-	LookForTarget();
+	if ( aimAssistEnable )
+	{
+		LookForTarget();
+	}
 }
 
 void Astreumon_fpsCharacter::TurnAtRate(float Rate)

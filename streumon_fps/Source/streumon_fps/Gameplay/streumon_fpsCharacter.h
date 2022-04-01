@@ -12,6 +12,7 @@ class Astreumon_fpsCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+private:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -19,6 +20,14 @@ class Astreumon_fpsCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = ( AllowPrivateAccess = "true" ) )
 	class UCameraComponent* FollowCamera;
+
+	/** Is character allowed to wallrun */
+	UPROPERTY( BlueprintReadOnly, Category = "Wallrun", meta = ( AllowPrivateAccess = "true" ) )
+	bool wallrunEnable = true;
+
+	/** Is the character allowed to have aim assist */
+	UPROPERTY( BlueprintReadOnly, Category = "Aim assist", meta = ( AllowPrivateAccess = "true" ) )
+	bool aimAssistEnable = true;
 
 	/** Aim assist radius
 	 *  How far from the target do we need to be to start aiming at it.
@@ -87,18 +96,48 @@ protected:
 
 	APawn* LookForTarget();
 
+	/**
+	* Called when the character is jumping off a wall
+	*/
+	UFUNCTION( Server, Reliable, WithValidation )
+	void JumpOffWallServer();
+	virtual void JumpOffWallServer_Implementation();
+	virtual bool JumpOffWallServer_Validate() { return true; };
+
 public:
+
+	UFUNCTION( Server, Reliable/*, WithValidation*/)
+	void ServerSwitchWallrun();
+	virtual void ServerSwitchWallrun_Implementation();
+	virtual bool ServerSwitchWallrun_Validate() { return true; };
+
 	/**
 	 * Handle wallrun jump before deciding or not to apply normal jump mechanic
 	 */
 	virtual void Jump() override;
 
+	/**
+	 * Used to switch the activation of the wallrun ability.
+	 */
+	virtual void SwitchWallrun();
+
+	/**
+	 * Used to switch the activation of the aimAssist ability.
+	 */
+	virtual void SwitchAimAssist();
+
 	virtual void Tick( float DeltaSeconds ) override;
+
+	// GETTER 
+
+	UFUNCTION( BlueprintCallable )
+	bool IsWallrunEnable() const;
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
 
 public:
 	/** Returns CameraBoom subobject **/

@@ -3,6 +3,8 @@
 
 #include "SO_CharacterMovementComponent.h"
 
+#include "SO_PlayerController.h"
+
 #include "streumon_fpsCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
@@ -120,6 +122,11 @@ void USO_CharacterMovementComponent::Wallrun()
 
 void USO_CharacterMovementComponent::FallOffWall()
 {
+	if ( !IsWallRuning() )
+	{
+		return;
+	}
+
 	GetCharacterOwner()->Controller->SetIgnoreMoveInput( false );
 
 	// Update state
@@ -138,13 +145,18 @@ void USO_CharacterMovementComponent::TickComponent( float DeltaTime, ELevelTick 
 {
 	UCharacterMovementComponent::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	if ( IsWallRuning() )
+	auto characterOwner_SO = Cast<Astreumon_fpsCharacter>( GetCharacterOwner() );
+
+	if ( IsValid( characterOwner_SO ) && characterOwner_SO->IsWallrunEnable() )
 	{
-		Wallrun();
-	}
-	else if ( IsFalling() )
-	{
-		TryStartWallrun();
+		if ( IsWallRuning() )
+		{
+			Wallrun();
+		}
+		else if ( IsFalling() )
+		{
+			TryStartWallrun();
+		}
 	}
 }
 

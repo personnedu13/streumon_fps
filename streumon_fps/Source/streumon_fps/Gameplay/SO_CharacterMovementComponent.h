@@ -105,11 +105,6 @@ protected:
 	void Wallrun();
 
 	/**
-	 * Called when the character is leaving the wallrun cycle, could be forced, jump off wall or just exiting the current wall.
-	 */
-	void FallOffWall();
-
-	/**
 	 * Called to ignore walls on a side for a specific amount of time.
 	 * minWallrunAngle to determine at wich angle difference it will stop ignoring the side.
 	 */
@@ -119,8 +114,16 @@ protected:
 	 * Called to stop ignoring walls on a side.
 	 */
 	void StopIgnoreWallrunSide();
+
+
 public:
+
 	virtual void TickComponent( float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+
+	/**
+	 * Called when the character is leaving the wallrun cycle, could be forced, jump off wall or just exiting the current wall.
+	 */
+	void FallOffWall();
 	
 	/**
 	* Called when the character is jumping off a wall

@@ -3,6 +3,7 @@
 
 #include "AbilityInfoWidget.h"
 #include "AbilityInfoMemberWidget.h"
+#include "../../Gameplay/SO_PlayerController.h"
 
 void UAbilityInfoWidget::SynchronizeProperties()
 {
@@ -21,4 +22,21 @@ void UAbilityInfoWidget::SynchronizeProperties()
 			nextUserWidget->SetPadding( FMargin( 0.0f, 0.0f, 8.0f, 0.0f ) );
 		}
 	}
+
+	// Setup delegates
+	if ( auto playerController = GetOwningPlayer<ASO_PlayerController>(); IsValid( playerController ) )
+	{
+		playerController->OnWallrunStateReceivedDelegate.AddDynamic( WallrunWidget, &UAbilityInfoMemberWidget::SetAbilityActive );
+		playerController->OnAimAssistStateReceivedDelegate.AddDynamic( AimAssistWidget, &UAbilityInfoMemberWidget::SetAbilityActive );
+	}
+}
+
+void UAbilityInfoWidget::OnWallrunStateReceived_Implementation( bool newWallrunState )
+{
+	WallrunWidget->SetAbilityActive( newWallrunState );
+}
+
+void UAbilityInfoWidget::OnAimAssistStateReceived_Implementation( bool newAimAssistState )
+{
+	AimAssistWidget->SetAbilityActive( newAimAssistState );
 }
