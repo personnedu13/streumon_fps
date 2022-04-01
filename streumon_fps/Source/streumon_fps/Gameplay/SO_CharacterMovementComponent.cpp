@@ -36,7 +36,7 @@ void USO_CharacterMovementComponent::TryStartWallrun()
 			&& UKismetMathLibrary::DegAcos( FVector::DotProduct( wallrunNormalToIgnore, hitResultRight.Normal ) ) >= minWallrunAngle );
 
 	// Wall usable ?
-	if ( hitOnRight && canSnapToNewWall )
+	if ( hitOnRight && canSnapToNewWall && IsValid( GetCharacterOwner()->Controller ) )
 	{
 		GetCharacterOwner()->Controller->SetIgnoreMoveInput( true );
 		//SetMovementMode( EMovementMode::MOVE_Custom, (uint8) ECustomMovementMode::MOVE_Wallrun );
@@ -56,7 +56,7 @@ void USO_CharacterMovementComponent::TryStartWallrun()
 			&& UKismetMathLibrary::DegAcos( FVector::DotProduct( wallrunNormalToIgnore, hitResultLeft.Normal ) ) >= minWallrunAngle );
 
 	// Wall usable ?
-	if ( hitOnLeft && canSnapToNewWall )
+	if ( hitOnLeft && canSnapToNewWall && IsValid( GetCharacterOwner()->Controller ) )
 	{
 		GetCharacterOwner()->Controller->SetIgnoreMoveInput( true );
 		//SetMovementMode( EMovementMode::MOVE_Custom, (uint8) ECustomMovementMode::MOVE_Wallrun );

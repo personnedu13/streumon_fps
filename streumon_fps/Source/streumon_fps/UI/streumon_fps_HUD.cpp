@@ -8,14 +8,16 @@ void Astreumon_fps_HUD::InitHUD()
 {
 	WidgetList.Empty();
 
-	for ( TSubclassOf<Ustreumon_fps_UserWidget> WidgetClass : WidgetClassList )
+	for ( TSubclassOf<Ustreumon_fps_UserWidget> widgetClass : WidgetClassList )
 	{
-		if ( WidgetClass )
+		if ( widgetClass )
 		{
-			Ustreumon_fps_UserWidget* newEntry = CreateWidget<Ustreumon_fps_UserWidget>( GetWorld(), WidgetClass );
+			Ustreumon_fps_UserWidget* newEntry = CreateWidget<Ustreumon_fps_UserWidget>( GetWorld(), widgetClass );
 			if ( newEntry )
 			{
 				newEntry->AddToViewport();
+				// Will only work for serverside
+				newEntry->OnPlayerControllerBeginPlay();
 				WidgetList.Add( newEntry );
 				//newEntry->SetupDelegateToObject( this );
 			}
@@ -26,4 +28,12 @@ void Astreumon_fps_HUD::InitHUD()
 void Astreumon_fps_HUD::BeginPlay()
 {
 	InitHUD();
+}
+
+void Astreumon_fps_HUD::OnPlayerControllerBeginPlay()
+{
+	for ( Ustreumon_fps_UserWidget* widget : WidgetList )
+	{
+		widget->OnPlayerControllerBeginPlay();
+	}
 }

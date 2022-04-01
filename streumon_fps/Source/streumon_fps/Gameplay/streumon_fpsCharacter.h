@@ -111,6 +111,11 @@ public:
 	virtual void ServerSwitchWallrun_Implementation();
 	virtual bool ServerSwitchWallrun_Validate() { return true; };
 
+	UFUNCTION( Server, Reliable/*, WithValidation*/)
+	void ServerSwitchAimAssist();
+	virtual void ServerSwitchAimAssist_Implementation();
+	virtual bool ServerSwitchAimAssist_Validate() { return true; };
+
 	/**
 	 * Handle wallrun jump before deciding or not to apply normal jump mechanic
 	 */

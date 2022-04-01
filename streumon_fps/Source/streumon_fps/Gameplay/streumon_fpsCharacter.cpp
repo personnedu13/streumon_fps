@@ -160,6 +160,15 @@ void Astreumon_fpsCharacter::ServerSwitchWallrun_Implementation()
 	}
 }
 
+void Astreumon_fpsCharacter::ServerSwitchAimAssist_Implementation()
+{
+	aimAssistEnable = !aimAssistEnable;
+	if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+	{
+		playerController->OnAimAssistStateReceived( aimAssistEnable );
+	}
+}
+
 void Astreumon_fpsCharacter::Jump()
 {
 	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
@@ -172,7 +181,7 @@ void Astreumon_fpsCharacter::Jump()
 		else
 		{
 			JumpOffWallServer();
-			//SO_movementComponent->JumpOffWall();
+			SO_movementComponent->JumpOffWall();
 		}
 	}
 }
@@ -181,15 +190,18 @@ void Astreumon_fpsCharacter::SwitchWallrun()
 {
 	ServerSwitchWallrun();
 
-	wallrunEnable = !wallrunEnable;
-	if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+	if ( !HasAuthority() )
 	{
-		playerController->OnWallrunStateReceived( wallrunEnable );
-	}
-	auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
-	if ( IsValid( SO_movementComponent ) && !wallrunEnable )
-	{
-		SO_movementComponent->FallOffWall();
+		wallrunEnable = !wallrunEnable;
+		if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+		{
+			playerController->OnWallrunStateReceived( wallrunEnable );
+		}
+		auto SO_movementComponent = Cast<USO_CharacterMovementComponent>( GetMovementComponent() );
+		if ( IsValid( SO_movementComponent ) && !wallrunEnable )
+		{
+			SO_movementComponent->FallOffWall();
+		}
 	}
 }
 
@@ -200,10 +212,15 @@ bool Astreumon_fpsCharacter::IsWallrunEnable() const
 
 void Astreumon_fpsCharacter::SwitchAimAssist()
 {
-	aimAssistEnable = !aimAssistEnable;
-	if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+	ServerSwitchAimAssist();
+
+	if ( !HasAuthority() )
 	{
-		playerController->OnAimAssistStateReceived( aimAssistEnable );
+		aimAssistEnable = !aimAssistEnable;
+		if ( auto playerController = GetController<ASO_PlayerController>(); IsValid( playerController ) )
+		{
+			playerController->OnAimAssistStateReceived( aimAssistEnable );
+		}
 	}
 }
 

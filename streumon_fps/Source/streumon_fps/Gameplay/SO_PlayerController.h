@@ -26,11 +26,16 @@ public:
 
 	// METHODS
 public:
-	UFUNCTION( Client, Reliable )
+	//UFUNCTION( Client, Reliable)
 	void OnWallrunStateReceived( bool newWallrunState );
-	void OnWallrunStateReceived_Implementation( bool newWallrunState );
+	//void OnWallrunStateReceived_Implementation( bool newWallrunState );
 
-	UFUNCTION( Client, Reliable )
+	//UFUNCTION( Client, Reliable )
 	void OnAimAssistStateReceived( bool newAimAssistState );
-	void OnAimAssistStateReceived_Implementation( bool newAimAssistState );
+	//void OnAimAssistStateReceived_Implementation( bool newAimAssistState );
+
+	// HUD is created at the end of the parent call of this function
+	virtual void OnPossess( APawn* aPawn ) override;
+
+	//virtual void BeginPlay() override;
 };

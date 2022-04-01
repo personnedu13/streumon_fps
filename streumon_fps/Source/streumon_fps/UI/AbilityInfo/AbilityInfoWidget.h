@@ -47,11 +47,9 @@ protected:
 	virtual void SynchronizeProperties() override;
 
 public:
-	UFUNCTION( Client, Reliable )
 	void OnWallrunStateReceived( bool newWallrunState );
-	void OnWallrunStateReceived_Implementation( bool newWallrunState );
 
-	UFUNCTION( Client, Reliable )
 	void OnAimAssistStateReceived( bool newAimAssistState );
-	void OnAimAssistStateReceived_Implementation( bool newAimAssistState );
+
+	virtual void OnPlayerControllerBeginPlay() override;
 };

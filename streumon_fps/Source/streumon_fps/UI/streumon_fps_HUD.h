@@ -14,6 +14,7 @@ class STREUMON_FPS_API Astreumon_fps_HUD : public AHUD
 {
 	GENERATED_BODY()
 
+	// ATTRIBUTES
 protected:
 	UPROPERTY( EditDefaultsOnly, Category = "Widget" )
 	TArray<TSubclassOf<class Ustreumon_fps_UserWidget>> WidgetClassList;
@@ -21,12 +22,17 @@ protected:
 	UPROPERTY( BlueprintReadOnly, Category = "Widget" )
 	TArray<Ustreumon_fps_UserWidget*> WidgetList;
 
+	// CONSTRUCTORS
+
 public:
 	Astreumon_fps_HUD() = default;
 
+	// METHODS
 protected:
 	virtual void InitHUD();
 
-protected:
 	virtual void BeginPlay() override;
+
+public:
+	virtual void OnPlayerControllerBeginPlay();
 };
