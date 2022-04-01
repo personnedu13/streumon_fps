@@ -8,12 +8,6 @@
 
 Astreumon_fpsGameMode::Astreumon_fpsGameMode()
 {
-	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprints/Player/BP_DefaultPlayerController"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
 }
 
 void Astreumon_fpsGameMode::IncrementScore_Implementation( ASO_PlayerController* playerController )
