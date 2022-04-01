@@ -119,7 +119,7 @@ void Astreumon_fpsCharacter::LookForTarget()
 	//FVector startTrace = GetActorLocation();
 	//FVector endTrace = GetActorLocation() + ( GetActorForwardVector() * aimAssistRange );
 
-	FVector startTrace = FollowCamera->GetComponentLocation() + ( FollowCamera->GetForwardVector() * 500.0f );
+	FVector startTrace = FollowCamera->GetComponentLocation() + ( FollowCamera->GetForwardVector() * 1000.0f );
 	FVector endTrace = FollowCamera->GetComponentLocation() + ( FollowCamera->GetForwardVector() * aimAssistRange );
 
 	static FName CollisionQueryName = TEXT( "AimAssistQuery" );
