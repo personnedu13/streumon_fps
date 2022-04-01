@@ -17,13 +17,6 @@ enum EWallrunType
 /** Used to declare a custom movement type
  *  TO DO : Implement proper wallrun state, need to rewrite the entire movement component functions, too long.
  */
-/*UENUM()
-enum class ECustomMovementMode : uint8
-{
-	MOVE_Default = 0U	UMETA( DisplayName = "Default" ),
-	MOVE_Wallrun = 1U	UMETA( DisplayName = "Wallrun" )
-};*/
-
 UCLASS()
 class STREUMON_FPS_API USO_CharacterMovementComponent : public UCharacterMovementComponent
 {
@@ -99,8 +92,6 @@ protected:
 
 	/**
 	 * Called when the character is already wall running
-	 * @Param wallrunSide  indicate the wall relative position to the player.
-	 * @Param wallNormalYaw  Used to get the Z orientation of the wall to determine where the player should wall run
 	 */
 	void Wallrun();
 

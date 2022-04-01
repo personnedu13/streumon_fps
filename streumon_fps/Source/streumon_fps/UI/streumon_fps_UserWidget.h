@@ -7,7 +7,7 @@
 #include "streumon_fps_UserWidget.generated.h"
 
 /**
- * 
+ *  User widget override to add some feature to the base class.
  */
 UCLASS()
 class STREUMON_FPS_API Ustreumon_fps_UserWidget : public UUserWidget
@@ -24,6 +24,4 @@ public:
 	int32 GetDesiredZOrderInViewport() const;
 
 	virtual void AddToViewport(); // No override to prevent polymorphism
-
-	virtual void OnPlayerControllerBeginPlay() {};
 };

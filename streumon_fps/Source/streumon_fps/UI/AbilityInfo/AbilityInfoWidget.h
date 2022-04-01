@@ -8,7 +8,8 @@
 #include "AbilityInfoWidget.generated.h"
 
 /**
- *
+ * Main widget for the ability information display.
+ * Uses UAbilityInfoMemberWidget to store and display informations.
  */
 UCLASS()
 class STREUMON_FPS_API UAbilityInfoWidget : public Ustreumon_fps_UserWidget
@@ -17,12 +18,15 @@ class STREUMON_FPS_API UAbilityInfoWidget : public Ustreumon_fps_UserWidget
 	
 	// ATTRIBUTES
 protected:
+	/** Used to align the ability images. */
 	UPROPERTY( BlueprintReadWrite, meta = ( BindWidget ) )
 	UHorizontalBox* AbilityHolder;
 
+	/** Wallrun widget */
 	UPROPERTY( BlueprintReadWrite, meta = ( BindWidget ) )
 	class UAbilityInfoMemberWidget* WallrunWidget;
 
+	/** Aim assist widget */
 	UPROPERTY( BlueprintReadWrite, meta = ( BindWidget ) )
 	class UAbilityInfoMemberWidget* AimAssistWidget;
 
@@ -31,9 +35,11 @@ protected:
 	virtual void SynchronizeProperties() override;
 
 public:
+	/** Used to subscribe to the delegate in the PlayerController. */
+	UFUNCTION()
 	void OnWallrunStateReceived( bool newWallrunState );
 
+	/** Used to subscribe to the delegate in the PlayerController. */
+	UFUNCTION()
 	void OnAimAssistStateReceived( bool newAimAssistState );
-
-	virtual void OnPlayerControllerBeginPlay() override;
 };

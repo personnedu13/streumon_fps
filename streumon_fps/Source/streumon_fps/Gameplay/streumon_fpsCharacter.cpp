@@ -112,7 +112,7 @@ void Astreumon_fpsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector
 	StopJumping();
 }
 
-APawn* Astreumon_fpsCharacter::LookForTarget()
+void Astreumon_fpsCharacter::LookForTarget()
 {
 	FHitResult hitResult;
 	//FVector startTrace = GetActorLocation();
@@ -140,8 +140,6 @@ APawn* Astreumon_fpsCharacter::LookForTarget()
 		AddControllerPitchInput( ( cameraToImpactPoint.Pitch - cameraToTarget.Pitch ) * aimAssistPitchAdjust );
 		AddControllerYawInput( ( cameraToTarget.Yaw - cameraToImpactPoint.Yaw ) * aimAssistYawAdjust );
 	}
-
-	return nullptr;
 }
 
 void Astreumon_fpsCharacter::JumpOffWallServer_Implementation()

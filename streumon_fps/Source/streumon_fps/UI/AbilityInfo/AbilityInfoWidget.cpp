@@ -40,12 +40,3 @@ void UAbilityInfoWidget::OnAimAssistStateReceived( bool newAimAssistState )
 {
 	AimAssistWidget->SetAbilityActive( newAimAssistState );
 }
-
-void UAbilityInfoWidget::OnPlayerControllerBeginPlay()
-{
-	/*if ( auto playerController = GetOwningPlayer<ASO_PlayerController>(); IsValid(playerController) )
-	{
-		playerController->OnWallrunStateReceivedDelegate.AddDynamic( WallrunWidget, &UAbilityInfoMemberWidget::SetAbilityActive );
-		playerController->OnAimAssistStateReceivedDelegate.AddDynamic( AimAssistWidget, &UAbilityInfoMemberWidget::SetAbilityActive );
-	}*/
-}

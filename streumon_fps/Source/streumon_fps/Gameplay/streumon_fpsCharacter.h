@@ -9,14 +9,16 @@
 
 class USceneComponent;
 
+/** Used for the aim assist and the jump off wall input
+ */
 UCLASS(config=Game)
 class Astreumon_fpsCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-		// ATTRIBUTES
-private:
+	// ATTRIBUTES
 
+private:
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY( VisibleDefaultsOnly, Category = Mesh )
 	USceneComponent* FP_MuzzleLocation;
@@ -85,6 +87,7 @@ public:
 	Astreumon_fpsCharacter( const FObjectInitializer& ObjectInitializer);
 
 	// METHODS
+
 protected:
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
@@ -113,11 +116,10 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
-	APawn* LookForTarget();
+	/** Aim assist main loop. */
+	void LookForTarget();
 
-	/**
-	* Called when the character is jumping off a wall
-	*/
+	/** Called when the character is jumping off a wall. */
 	UFUNCTION( Server, Reliable, WithValidation )
 	void JumpOffWallServer();
 	virtual void JumpOffWallServer_Implementation();
@@ -128,31 +130,28 @@ protected:
 
 public:
 
+	/** Used to switch the activation of the wallrun ability on the server. */
 	UFUNCTION( Server, Reliable, WithValidation)
 	void ServerSwitchWallrun();
 	virtual void ServerSwitchWallrun_Implementation();
 	virtual bool ServerSwitchWallrun_Validate() { return true; };
 
+	/** Used to switch the activation of the aim assist ability on the server. */
 	UFUNCTION( Server, Reliable, WithValidation)
 	void ServerSwitchAimAssist();
 	virtual void ServerSwitchAimAssist_Implementation();
 	virtual bool ServerSwitchAimAssist_Validate() { return true; };
 
-	/**
-	 * Handle wallrun jump before deciding or not to apply normal jump mechanic
-	 */
-	virtual void Jump() override;
-
-	/**
-	 * Used to switch the activation of the wallrun ability.
-	 */
+	/** Used to switch the activation of the wallrun ability. */
 	virtual void SwitchWallrun();
 
-	/**
-	 * Used to switch the activation of the aimAssist ability.
-	 */
+	/** Used to switch the activation of the aimAssist ability. */
 	virtual void SwitchAimAssist();
 
+	/** Handle wallrun jump before deciding or not to apply normal jump mechanic */
+	virtual void Jump() override;
+
+	/** Loop for aim assist. */
 	virtual void Tick( float DeltaSeconds ) override;
 
 	// GETTER 

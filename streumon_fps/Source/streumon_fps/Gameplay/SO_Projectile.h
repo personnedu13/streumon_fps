@@ -9,12 +9,18 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 
+/** Projectile fired by the weapon.
+ *  Handle the hit on other players.
+ */
 UCLASS( config = Game )
 class STREUMON_FPS_API ASO_Projectile : public AActor
 {
 	
 	GENERATED_BODY()
 
+	// ATTRIBUTES
+
+private:
 	/** Sphere collision component */
 	UPROPERTY( VisibleDefaultsOnly, Category = Projectile )
 	USphereComponent* CollisionComp;
@@ -27,8 +33,11 @@ class STREUMON_FPS_API ASO_Projectile : public AActor
 	UPROPERTY( EditAnywhere, Category = Projectile )
 	float ProjectileSpeed = 5000.0f;
 
+	// CONSTRUCTORS
 public:
 	ASO_Projectile();
+
+	// METHODS
 
 	/** called when projectile hits something */
 	UFUNCTION()
@@ -36,6 +45,7 @@ public:
 
 	/** Returns CollisionComp subobject **/
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
+
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 };

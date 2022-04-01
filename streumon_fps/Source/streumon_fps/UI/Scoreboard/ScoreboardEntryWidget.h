@@ -8,7 +8,7 @@
 #include "ScoreboardEntryWidget.generated.h"
 
 /**
- * 
+ * This widget represent a line inside the scoreboard.
  */
 UCLASS()
 class STREUMON_FPS_API UScoreboardEntryWidget : public Ustreumon_fps_UserWidget
@@ -16,17 +16,21 @@ class STREUMON_FPS_API UScoreboardEntryWidget : public Ustreumon_fps_UserWidget
 	GENERATED_BODY()
 
 	// ATTRIBUTES
-protected:
 
+protected:
+	/** Displayed text for the name of the player in the scoreboard */
 	UPROPERTY( BlueprintReadWrite, meta = ( BindWidget ) )
 	UTextBlock* PlayerNameText;
 
+	/** Displayed text for the score of the player in the scoreboard */
 	UPROPERTY( BlueprintReadWrite, meta = ( BindWidget ) )
 	UTextBlock* PlayerScoreText;
 
 	// METHODS
-public:
 
+	// SETTER
+
+public:
 	UFUNCTION( BlueprintCallable )
 	void SetPlayerName( FString name );
 
