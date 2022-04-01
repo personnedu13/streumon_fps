@@ -7,12 +7,20 @@
 #include "SO_CharacterMovementComponent.h"
 #include "streumon_fpsCharacter.generated.h"
 
+class USceneComponent;
+
 UCLASS(config=Game)
 class Astreumon_fpsCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+		// ATTRIBUTES
 private:
+
+	/** Location on gun mesh where projectiles should spawn. */
+	UPROPERTY( VisibleDefaultsOnly, Category = Mesh )
+	USceneComponent* FP_MuzzleLocation;
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -56,16 +64,27 @@ private:
 	float aimAssistPitchAdjust = 0.2f;
 
 public:
-	Astreumon_fpsCharacter( const FObjectInitializer& ObjectInitializer);
+	/** Gun muzzle's offset from the characters location */
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = Gameplay )
+	FVector GunOffset;
+
+	/** Projectile class to spawn */
+	UPROPERTY( EditDefaultsOnly, Category = Projectile )
+	TSubclassOf<class ASO_Projectile> ProjectileClass;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Camera )
 	float BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Camera )
 	float BaseLookUpRate;
 
+	// CONSTRUCTORS
+public:
+	Astreumon_fpsCharacter( const FObjectInitializer& ObjectInitializer);
+
+	// METHODS
 protected:
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
@@ -104,14 +123,17 @@ protected:
 	virtual void JumpOffWallServer_Implementation();
 	virtual bool JumpOffWallServer_Validate() { return true; };
 
+	/** Fires a projectile in front of the player */
+	void OnFire();
+
 public:
 
-	UFUNCTION( Server, Reliable/*, WithValidation*/)
+	UFUNCTION( Server, Reliable, WithValidation)
 	void ServerSwitchWallrun();
 	virtual void ServerSwitchWallrun_Implementation();
 	virtual bool ServerSwitchWallrun_Validate() { return true; };
 
-	UFUNCTION( Server, Reliable/*, WithValidation*/)
+	UFUNCTION( Server, Reliable, WithValidation)
 	void ServerSwitchAimAssist();
 	virtual void ServerSwitchAimAssist_Implementation();
 	virtual bool ServerSwitchAimAssist_Validate() { return true; };

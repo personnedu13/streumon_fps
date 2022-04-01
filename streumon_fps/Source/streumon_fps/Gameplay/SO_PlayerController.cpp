@@ -14,20 +14,15 @@ void ASO_PlayerController::OnAimAssistStateReceived( bool newAimAssistState )
 	OnAimAssistStateReceivedDelegate.Broadcast( newAimAssistState );
 }
 
-/*void ASO_PlayerController::BeginPlay()
+void ASO_PlayerController::OnScoreUpdate_Implementation( const TArray< FString >& names, const TArray< int >& scores )
 {
-	APlayerController::BeginPlay();
-	if ( auto SO_HUD = GetHUD<Astreumon_fps_HUD>(); IsValid( SO_HUD ) )
-	{
-		SO_HUD->OnPlayerControllerBeginPlay();
-	}
-}*/
+	OnScoreUpdateDelegate.Broadcast( names, scores );
+}
 
-void ASO_PlayerController::OnPossess( APawn* aPawn )
+void ASO_PlayerController::IncrementScore_Implementation()
 {
-	APlayerController::OnPossess(aPawn);
-	/*if ( auto SO_HUD = GetHUD<Astreumon_fps_HUD>(); IsValid(SO_HUD) )
+	if ( Astreumon_fpsGameMode* gameModeSO = Cast< Astreumon_fpsGameMode>( GetWorld()->GetAuthGameMode() ); IsValid( gameModeSO ) )
 	{
-		SO_HUD->OnPlayerControllerBeginPlay();
-	}*/
+		gameModeSO->IncrementScore( this );
+	}
 }
